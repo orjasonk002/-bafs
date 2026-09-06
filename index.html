@@ -4,92 +4,79 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BAFS 中四損益表 (Income Statement) 鞏固練習</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .drag-item { cursor: grab; touch-action: none; }
+        .drag-item { cursor: grab; user-select: none; }
         .drag-item:active { cursor: grabbing; }
-        .drop-zone.highlight { border-color: #3b82f6; background-color: #eff6ff; }
+        .drop-zone.dragover { border-color: #3b82f6; background-color: #dbeafe; }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen text-slate-800 p-4 md:p-8">
 
     <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-md p-6">
-        <!-- 標頭與個案選擇 -->
         <header class="border-b pb-4 mb-6">
             <h1 class="text-2xl md:text-3xl font-bold text-blue-900 mb-2">BAFS 企業會計：損益表編制練習</h1>
-            <p class="text-slate-600 text-sm">請選擇個案，完成三個階段的挑戰：帳戶分類、概念計算、編制完整損益表。</p>
+            <p class="text-slate-600 text-sm">請選擇個案，完成三個階段的挑戰：帳戶分類、概念理解、編制完整損益表。</p>
             
-            <div class="mt-4 flex flex-wrap gap-2" id="case-buttons">
-                <!-- 動態生成個案按鈕 -->
-            </div>
+            <div class="mt-4 flex flex-wrap gap-2" id="case-buttons"></div>
         </header>
 
-        <!-- 個案資料簡介 -->
         <div id="case-info" class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded mb-6">
             <h2 id="case-title" class="font-bold text-lg text-blue-900"></h2>
             <p id="case-desc" class="text-sm text-slate-700 mt-1"></p>
             <div id="case-difficulty" class="mt-2"></div>
         </div>
 
-        <!-- 階段一：帳戶分類 (Drag and Drop / Click) -->
         <section id="stage-1" class="mb-8">
             <h3 class="text-lg font-bold text-slate-800 border-b pb-2 mb-4 flex items-center">
                 <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs mr-2">1</span>
                 階段一：分辨收益及費用 (毛利之上 vs 毛利之下)
             </h3>
-            <p class="text-sm text-slate-600 mb-4">請將以下項目分類至「毛利之上 (銷貨收益 / 銷貨成本相關)」或「毛利之下 (其他收益 / 費用)」。</p>
+            <p class="text-sm text-slate-600 mb-4">請將以下項目**直接拖拉**至「毛利之上 (銷貨 / 銷貨成本相關)」或「毛利之下 (其他收益 / 費用)」。</p>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <!-- 待分類帳戶 -->
                 <div class="bg-slate-100 p-3 rounded-lg border">
                     <h4 class="font-bold text-center text-slate-700 mb-2 text-sm">待分類項目</h4>
-                    <div id="unassigned-items" class="min-h-[150px] flex flex-wrap gap-2 p-2"></div>
+                    <div id="unassigned-items" class="min-h-[160px] flex flex-wrap content-start gap-2 p-2 border-2 border-dashed border-slate-300 rounded drop-zone" data-category="unassigned"></div>
                 </div>
 
-                <!-- 毛利之上 Dropzone -->
-                <div class="bg-emerald-50 p-3 rounded-lg border border-emerald-200 drop-zone" data-category="above">
-                    <h4 class="font-bold text-center text-emerald-800 mb-2 text-sm">毛利之上<br><span class="text-xs font-normal text-emerald-600">(銷貨收益及銷貨成本相關)</span></h4>
-                    <div id="above-gross-items" class="min-h-[150px] flex flex-wrap gap-2 p-2"></div>
+                <div class="bg-emerald-50 p-3 rounded-lg border border-emerald-200">
+                    <h4 class="font-bold text-center text-emerald-800 mb-2 text-sm">毛利之上<br><span class="text-xs font-normal text-emerald-600">(銷貨及銷貨成本相關)</span></h4>
+                    <div id="above-gross-items" class="min-h-[160px] flex flex-wrap content-start gap-2 p-2 border-2 border-dashed border-emerald-300 rounded drop-zone" data-category="above"></div>
                 </div>
 
-                <!-- 毛利之下 Dropzone -->
-                <div class="bg-indigo-50 p-3 rounded-lg border border-indigo-200 drop-zone" data-category="below">
+                <div class="bg-indigo-50 p-3 rounded-lg border border-indigo-200">
                     <h4 class="font-bold text-center text-indigo-800 mb-2 text-sm">毛利之下<br><span class="text-xs font-normal text-indigo-600">(其他收益及費用)</span></h4>
-                    <div id="below-gross-items" class="min-h-[150px] flex flex-wrap gap-2 p-2"></div>
+                    <div id="below-gross-items" class="min-h-[160px] flex flex-wrap content-start gap-2 p-2 border-2 border-dashed border-indigo-300 rounded drop-zone" data-category="below"></div>
                 </div>
             </div>
             <button onclick="checkStage1()" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition">檢查分類答案</button>
-            <span id="stage1-feedback" class="ml-3 font-semibold text-sm"></span>
+            <div id="stage1-feedback" class="mt-2 font-semibold text-sm"></div>
         </section>
 
-        <!-- 階段二：銷貨成本變化與計算 -->
         <section id="stage-2" class="mb-8">
             <h3 class="text-lg font-bold text-slate-800 border-b pb-2 mb-4 flex items-center">
                 <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs mr-2">2</span>
-                階段二：銷貨成本 (COGS) 概念理解與計算
+                階段二：銷貨成本 (COGS) 概念理解
             </h3>
             
-            <div id="cogs-questions" class="space-y-4">
-                <!-- 動態生成題目 -->
-            </div>
+            <div id="cogs-questions" class="space-y-4"></div>
             
-            <button onclick="checkStage2()" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition">檢查計算答案</button>
-            <span id="stage2-feedback" class="ml-3 font-semibold text-sm"></span>
+            <button onclick="checkStage2()" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition">檢查階段二答案</button>
+            <div id="stage2-feedback" class="mt-2 font-semibold text-sm"></div>
         </section>
 
-        <!-- 階段三：總結損益表 -->
         <section id="stage-3" class="mb-6">
             <h3 class="text-lg font-bold text-slate-800 border-b pb-2 mb-4 flex items-center">
                 <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs mr-2">3</span>
                 階段三：編制完整損益表 (Income Statement)
             </h3>
-            <p class="text-sm text-slate-600 mb-4">請根據數據，計算出最終的銷貨純益 (Gross Profit) 及淨利潤 (Net Profit)。</p>
+            <p class="text-sm text-slate-600 mb-4">請根據數據，計算出最終的毛利 (Gross Profit) 及純利 (Net Profit)。</p>
 
             <div class="bg-slate-50 border p-4 rounded-lg max-w-lg mx-auto font-mono text-sm space-y-2">
                 <div class="text-center font-bold text-base mb-2" id="statement-header">損益表</div>
                 <div class="flex justify-between border-b pb-1">
-                    <span>銷貨收益 (Sales)</span>
+                    <span>銷貨 (Sales / Net Sales)</span>
                     <span id="stmt-sales">$0</span>
                 </div>
                 <div class="flex justify-between text-red-600">
@@ -109,87 +96,81 @@
                     <span id="stmt-expenses">($0)</span>
                 </div>
                 <div class="flex justify-between font-bold border-t-2 border-b-2 py-1 my-1 bg-yellow-50">
-                    <span>淨利潤 / (虧損) (Net Profit/Loss)</span>
+                    <span>純利 / (虧損) (Net Profit/Loss)</span>
                     <input type="number" id="input-np" class="w-28 px-1 border rounded text-right font-mono" placeholder="$">
                 </div>
             </div>
 
             <div class="text-center mt-4">
                 <button onclick="checkStage3()" class="px-6 py-2 bg-green-600 text-white font-bold rounded hover:bg-green-700 transition">提交並核對損益表</button>
-                <div id="stage3-feedback" class="mt-2 font-bold text-base"></div>
+                <div id="stage3-feedback" class="mt-3 font-bold text-base"></div>
             </div>
         </section>
     </div>
 
     <script>
-        // 5 個個案數據庫 (包含 3 個難度，10-12 個帳戶項目)
         const cases = [
             {
                 id: 1,
                 name: "個案一：明記小食店",
                 difficulty: "簡單",
+                isSimple: true,
                 diffColor: "bg-green-100 text-green-800",
-                desc: "初學者練習，不包含購貨退回及銷貨折扣等複雜項目。",
+                desc: "基礎個案，專注於基本項目的分類與存貨變化的概念理解。",
                 items: [
-                    { name: "銷貨收益 (Sales)", amount: 150000, category: "above" },
+                    { name: "銷貨 (Sales)", amount: 150000, category: "above" },
                     { name: "期初存貨 (Opening Inventory)", amount: 12000, category: "above" },
                     { name: "購貨 (Purchases)", amount: 80000, category: "above" },
                     { name: "購貨運費 (Carriage Inwards)", amount: 3000, category: "above" },
                     { name: "期末存貨 (Closing Inventory)", amount: 15000, category: "above" },
-                    { name: "租金支出 (Rent Expense)", amount: 24000, category: "below" },
+                    { name: "租金支出 (Rent)", amount: 24000, category: "below" },
                     { name: "薪金支出 (Salaries)", amount: 30000, category: "below" },
                     { name: "水電費 (Electricity)", amount: 5000, category: "below" },
                     { name: "利息收益 (Interest Income)", amount: 1200, category: "below" },
                     { name: "廣告費 (Advertising)", amount: 4000, category: "below" }
                 ],
                 cogsQ1: {
-                    text: "假設由於市場需求增加，期末存貨 (Closing Inventory) 比預期【增加 $3,000】。請問這會對銷貨成本 (COGS) 帶來什麼影響？",
-                    type: "effect",
-                    options: ["上升 $3,000", "下降 $3,000", "沒有影響"],
-                    ans: "下降 $3,000"
+                    text: "假設由於銷情理想，期末存貨 (Closing Inventory) 比預期【增加 $3,000】。請問這會對銷貨成本 (COGS) 帶來什麼影響？",
+                    options: ["銷貨成本上升 $3,000", "銷貨成本下降 $3,000", "完全沒有影響"],
+                    ans: "銷貨成本下降 $3,000"
                 },
-                cogsQ2: {
-                    text: "請計算當前的銷貨成本 (COGS) 總額：",
-                    ans: 80000 + 12000 + 3000 - 15000 // 80000
-                }
+                cogsValue: 80000 // 12000 + 80000 + 3000 - 15000
             },
             {
                 id: 2,
                 name: "個案二：文青文具店",
                 difficulty: "簡單",
+                isSimple: true,
                 diffColor: "bg-green-100 text-green-800",
-                desc: "基礎商業個案，測試對基本營運開支的分類及銷貨成本運算。",
+                desc: "基礎個案，理解期初存貨誤差對銷貨成本的影響。",
                 items: [
-                    { name: "銷貨收益 (Sales)", amount: 220000, category: "above" },
+                    { name: "銷貨 (Sales)", amount: 220000, category: "above" },
                     { name: "期初存貨 (Opening Inventory)", amount: 25000, category: "above" },
                     { name: "購貨 (Purchases)", amount: 110000, category: "above" },
                     { name: "期末存貨 (Closing Inventory)", amount: 18000, category: "above" },
                     { name: "購貨運費 (Carriage Inwards)", amount: 2000, category: "above" },
                     { name: "店舖租金 (Rent)", amount: 36000, category: "below" },
                     { name: "員工薪金 (Salaries)", amount: 45000, category: "below" },
-                    { name: "傭金收益 (Commission Received)", amount: 3500, category: "below" },
+                    { name: "佣金收益 (Commission Received)", amount: 3500, category: "below" },
                     { name: "文具及印刷費 (Stationery)", amount: 1500, category: "below" },
                     { name: "銷貨運費 (Carriage Outwards)", amount: 2800, category: "below" }
                 ],
                 cogsQ1: {
-                    text: "若期初存貨 (Opening Inventory) 因盤點錯誤而【少計 $2,000】（即實際存貨較高），更正後銷貨成本 (COGS) 會：",
-                    type: "effect",
+                    text: "若盤點時發現期初存貨 (Opening Inventory) 【少計了 $2,000】，更正這項錯誤會令銷貨成本 (COGS)：",
                     options: ["上升 $2,000", "下降 $2,000", "保持不變"],
                     ans: "上升 $2,000"
                 },
-                cogsQ2: {
-                    text: "請計算當前的銷貨成本 (COGS) 總額：",
-                    ans: 25000 + 110000 + 2000 - 18000 // 119000
-                }
+                cogsValue: 119000
             },
             {
                 id: 3,
                 name: "個案三：極速運動用品店",
-                difficulty: "中等",
-                diffColor: "bg-yellow-100 text-yellow-800",
-                desc: "加入銷貨退回 (Returns Outwards) 及銷貨運費 (Carriage Outwards) 的干擾項。",
+                difficulty: "簡單",
+                isSimple: true,
+                diffColor: "bg-green-100 text-green-800",
+                desc: "測試學生對退回項目與銷貨運費的毛利界定。",
                 items: [
-                    { name: "銷貨收益 (Sales)", amount: 380000, category: "above" },
+                    { name: "銷貨 (Sales)", amount: 380000, category: "above" },
                     { name: "銷貨退回 (Returns Inwards)", amount: 5000, category: "above" },
                     { name: "期初存貨 (Opening Inventory)", amount: 40000, category: "above" },
                     { name: "購貨 (Purchases)", amount: 200000, category: "above" },
@@ -202,24 +183,21 @@
                     { name: "保險費 (Insurance)", amount: 4800, category: "below" }
                 ],
                 cogsQ1: {
-                    text: "供應商給予【購貨退回 (Returns Outwards) $8,000】，這項因素對銷貨成本的影響是：",
-                    type: "effect",
-                    options: ["增加銷貨成本 $8,000", "減少銷貨成本 $8,000", "只影響毛利之下"],
+                    text: "供應商給予【購貨退回 (Returns Outwards) $8,000】，這項調整會對銷貨成本產生甚麼影響？",
+                    options: ["減少銷貨成本 $8,000", "增加銷貨成本 $8,000", "只影響毛利之下的費用"],
                     ans: "減少銷貨成本 $8,000"
                 },
-                cogsQ2: {
-                    text: "請計算當前的銷貨成本 (COGS) 總額：",
-                    ans: 40000 + (200000 - 8000) - 35000 // 197000
-                }
+                cogsValue: 197000
             },
             {
                 id: 4,
                 name: "個案四：潮流服飾公司",
                 difficulty: "中等",
+                isSimple: false,
                 diffColor: "bg-yellow-100 text-yellow-800",
-                desc: "包含折扣項目（銷貨折扣與購貨折扣），測試學生對淨銷貨與淨購貨概念。",
+                desc: "加入折讓項目，並需要學生手動計算銷貨成本。",
                 items: [
-                    { name: "銷貨收益 (Gross Sales)", amount: 500000, category: "above" },
+                    { name: "銷貨 (Sales)", amount: 500000, category: "above" },
                     { name: "銷貨折讓/折扣 (Sales Discounts)", amount: 10000, category: "above" },
                     { name: "期初存貨 (Opening Inventory)", amount: 60000, category: "above" },
                     { name: "購貨 (Purchases)", amount: 280000, category: "above" },
@@ -233,23 +211,20 @@
                 ],
                 cogsQ1: {
                     text: "若營運期內【購貨運費 (Carriage Inwards) 上升 $4,000】，銷貨成本 (COGS) 會如何變化？",
-                    type: "effect",
                     options: ["上升 $4,000", "下降 $4,000", "沒有改變"],
                     ans: "上升 $4,000"
                 },
-                cogsQ2: {
-                    text: "請計算當前的銷貨成本 (COGS) 總額：",
-                    ans: 60000 + (280000 - 6000 + 4000) - 52000 // 286000
-                }
+                cogsValue: 286000
             },
             {
                 id: 5,
                 name: "個案五：智科數碼貿易公司",
                 difficulty: "困難",
+                isSimple: false,
                 diffColor: "bg-red-100 text-red-800",
-                desc: "高階綜合題，包含完整銷貨/購貨調整、多項營運費用及非營運收益。",
+                desc: "高階綜合題，包含多項調整及費用，需學生完整計算 COGS。",
                 items: [
-                    { name: "銷貨收益 (Sales)", amount: 850000, category: "above" },
+                    { name: "銷貨 (Sales)", amount: 850000, category: "above" },
                     { name: "銷貨退回 (Returns Inwards)", amount: 12000, category: "above" },
                     { name: "期初存貨 (Opening Inventory)", amount: 95000, category: "above" },
                     { name: "購貨 (Purchases)", amount: 450000, category: "above" },
@@ -263,25 +238,35 @@
                     { name: "投資收益 (Investment Income)", amount: 18000, category: "below" }
                 ],
                 cogsQ1: {
-                    text: "若期末存貨 (Closing Inventory) 發生損壞導致估值【減少 $10,000】，這會導致毛利 (Gross Profit) 現金流以外的何種變化？",
-                    type: "effect",
+                    text: "若期末存貨估值【減少 $10,000】，這會對銷貨成本及毛利有何影響？",
                     options: ["銷貨成本增加 $10,000，毛利減少 $10,000", "銷貨成本減少 $10,000，毛利增加 $10,000", "毛利保持不變"],
                     ans: "銷貨成本增加 $10,000，毛利減少 $10,000"
                 },
-                cogsQ2: {
-                    text: "請計算當前的銷貨成本 (COGS) 總額：",
-                    ans: 95000 + (450000 - 15000 + 8000) - 88000 // 450000
-                }
+                cogsValue: 450000
             }
         ];
 
         let currentCase = cases[0];
         let userCategories = {};
 
-        // 初始化頁面
+        // 廣東話語句庫
+        const praiseCorrect = [
+            "正呀！全對！你對毛利上下嘅帳戶分類掌握得非常好！👍",
+            "答得超棒！會計概念好清晰，繼續保持！🔥",
+            "完全正確！睇嚟你已經好熟練損益表嘅結構啦！💯",
+            "非常好！完全冇被干擾項難倒，好有潛質！🌟"
+        ];
+
+        const praiseEncourage = [
+            "差少少咋！唔緊要，會計係需要多練習，再仔細睇睇邊個項目分類錯咗？💪",
+            "雖然未完全正確，但你已經做得好好！試下再思考下邊啲係同「銷貨及購貨」直接相關？加油！🔥",
+            "唔緊要！錯咗先知邊度可以再改進，睇埋提示再試一次啦！👍"
+        ];
+
         window.onload = function() {
             renderCaseButtons();
             loadCase(0);
+            setupDragAndDrop();
         };
 
         function renderCaseButtons() {
@@ -300,61 +285,69 @@
             currentCase = cases[index];
             userCategories = {};
 
-            // 渲染個案簡介
             document.getElementById("case-title").innerText = currentCase.name;
             document.getElementById("case-desc").innerText = currentCase.desc;
-            document.getElementById("case-difficulty").innerHTML = `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${currentCase.diffColor}">難度：${currentCase.difficulty}</span>`;
+            document.getElementById("case-difficulty").innerHTML = `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${currentCase.diffColor}">難度：${currentCase.difficulty} ${currentCase.isSimple ? '(免算COGS)' : ''}</span>`;
 
-            // 重設階段一
             renderStage1();
             document.getElementById("stage1-feedback").innerText = "";
 
-            // 重設階段二
             renderStage2();
             document.getElementById("stage2-feedback").innerText = "";
 
-            // 重設階段三
             renderStage3();
             document.getElementById("stage3-feedback").innerText = "";
         }
 
-        // --- 階段一邏輯 ---
+        // --- 階段一：拖放邏輯 ---
         function renderStage1() {
             const unassigned = document.getElementById("unassigned-items");
-            const above = document.getElementById("above-gross-items");
-            const below = document.getElementById("below-gross-items");
-
+            document.getElementById("above-gross-items").innerHTML = "";
+            document.getElementById("below-gross-items").innerHTML = "";
             unassigned.innerHTML = "";
-            above.innerHTML = "";
-            below.innerHTML = "";
 
-            // 隨機打亂項目
             const shuffled = [...currentCase.items].sort(() => Math.random() - 0.5);
 
             shuffled.forEach((item, i) => {
                 const el = document.createElement("div");
-                el.className = "drag-item bg-white border border-slate-300 shadow-sm px-2.5 py-1.5 rounded text-xs font-medium hover:border-blue-400 select-none";
+                el.className = "drag-item bg-white border border-slate-300 shadow-sm px-2.5 py-1.5 rounded text-xs font-medium hover:border-blue-400";
                 el.innerText = `${item.name} ($${item.amount.toLocaleString()})`;
                 el.draggable = true;
                 el.id = `item-${i}`;
                 el.dataset.name = item.name;
 
-                // 點擊快捷切換分類
-                el.onclick = () => {
-                    if (!userCategories[item.name] || userCategories[item.name] === 'unassigned') {
-                        userCategories[item.name] = 'above';
-                        above.appendChild(el);
-                    } else if (userCategories[item.name] === 'above') {
-                        userCategories[item.name] = 'below';
-                        below.appendChild(el);
-                    } else {
-                        userCategories[item.name] = 'unassigned';
-                        unassigned.appendChild(el);
-                    }
-                };
+                el.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', item.name);
+                    e.dataTransfer.setData('element-id', el.id);
+                });
 
                 unassigned.appendChild(el);
                 userCategories[item.name] = 'unassigned';
+            });
+        }
+
+        function setupDragAndDrop() {
+            const zones = document.querySelectorAll('.drop-zone');
+            zones.forEach(zone => {
+                zone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    zone.classList.add('dragover');
+                });
+                zone.addEventListener('dragleave', () => {
+                    zone.classList.remove('dragover');
+                });
+                zone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    zone.classList.remove('dragover');
+                    const name = e.dataTransfer.getData('text/plain');
+                    const elId = e.dataTransfer.getData('element-id');
+                    const el = document.getElementById(elId);
+
+                    if (el) {
+                        zone.appendChild(el);
+                        userCategories[name] = zone.dataset.category;
+                    }
+                });
             });
         }
 
@@ -367,53 +360,71 @@
             });
 
             const feedback = document.getElementById("stage1-feedback");
+            const getRandomMsg = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
             if (correct === currentCase.items.length) {
-                feedback.className = "ml-3 font-semibold text-sm text-green-600";
-                feedback.innerText = `優秀！全部 ${correct}/${currentCase.items.length} 個項目分類正確！`;
+                feedback.className = "mt-2 font-semibold text-sm text-green-600";
+                feedback.innerText = `${getRandomMsg(praiseCorrect)} (${correct}/${currentCase.items.length} 正確)`;
             } else {
-                feedback.className = "ml-3 font-semibold text-sm text-red-600";
-                feedback.innerText = `答對 ${correct}/${currentCase.items.length} 個項目，請再檢查一下（點擊項目可快速換組）。`;
+                feedback.className = "mt-2 font-semibold text-sm text-amber-700";
+                feedback.innerText = `${getRandomMsg(praiseEncourage)} (目前答對 ${correct}/${currentCase.items.length} 個)`;
             }
         }
 
         // --- 階段二邏輯 ---
         function renderStage2() {
             const container = document.getElementById("cogs-questions");
-            container.innerHTML = `
+            let html = `
                 <div class="bg-slate-50 p-3 rounded border text-sm">
-                    <p class="font-bold text-slate-700">情境概念題：</p>
+                    <p class="font-bold text-slate-700">概念理解題：</p>
                     <p class="mt-1">${currentCase.cogsQ1.text}</p>
                     <div class="mt-2 flex flex-wrap gap-2">
                         ${currentCase.cogsQ1.options.map(opt => `
-                            <label class="inline-flex items-center text-xs bg-white px-2 py-1 rounded border cursor-pointer">
+                            <label class="inline-flex items-center text-xs bg-white px-2 py-1 rounded border cursor-pointer hover:bg-slate-50">
                                 <input type="radio" name="cogs-q1" value="${opt}" class="mr-1"> ${opt}
                             </label>
                         `).join('')}
                     </div>
                 </div>
-
-                <div class="bg-slate-50 p-3 rounded border text-sm">
-                    <p class="font-bold text-slate-700">金額計算題：</p>
-                    <p class="mt-1">${currentCase.cogsQ2.text}</p>
-                    <input type="number" id="cogs-q2-input" class="mt-2 px-2 py-1 border rounded font-mono text-sm w-36" placeholder="輸入金額 ($)">
-                </div>
             `;
+
+            if (!currentCase.isSimple) {
+                html += `
+                    <div class="bg-slate-50 p-3 rounded border text-sm">
+                        <p class="font-bold text-slate-700">進階計算題：</p>
+                        <p class="mt-1">請計算當前個案的銷貨成本 (COGS) 總額：</p>
+                        <input type="number" id="cogs-q2-input" class="mt-2 px-2 py-1 border rounded font-mono text-sm w-36" placeholder="輸入金額 ($)">
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div class="bg-blue-50 p-3 rounded border border-blue-200 text-xs text-blue-800">
+                        💡 <strong>簡單個案提示：</strong> 此難度毋須手動計算銷貨成本金額，系統將會在階段三自動載入！
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
         }
 
         function checkStage2() {
             const selectedQ1 = document.querySelector('input[name="cogs-q1"]:checked');
-            const inputQ2 = document.getElementById("cogs-q2-input").value;
             const feedback = document.getElementById("stage2-feedback");
 
             let q1Correct = selectedQ1 && selectedQ1.value === currentCase.cogsQ1.ans;
-            let q2Correct = parseInt(inputQ2) === currentCase.cogsQ2.ans;
+            let q2Correct = true;
+
+            if (!currentCase.isSimple) {
+                const inputQ2 = document.getElementById("cogs-q2-input").value;
+                q2Correct = parseInt(inputQ2) === currentCase.cogsValue;
+            }
 
             if (q1Correct && q2Correct) {
-                feedback.className = "ml-3 font-semibold text-sm text-green-600";
-                feedback.innerText = "完全正確！理解概念並精確計算出銷貨成本。";
+                feedback.className = "mt-2 font-semibold text-sm text-green-600";
+                feedback.innerText = "太棒了！概念理解完全正確！👏";
             } else {
-                feedback.className = "ml-3 font-semibold text-sm text-red-600";
-                feedback.innerText = `部分有誤：概念題(${q1Correct ? '正確' : '錯誤'})，計算題(${q2Correct ? '正確' : '錯誤'})。`;
+                feedback.className = "mt-2 font-semibold text-sm text-amber-700";
+                feedback.innerText = "仲差少少！再仔細想想存貨或費用變化對成本嘅影響，加油！💪";
             }
         }
 
@@ -421,17 +432,16 @@
         function renderStage3() {
             document.getElementById("statement-header").innerText = `${currentCase.name.split('：')[1]} - 損益表`;
 
-            // 計算毛利之上與毛利之下的加總
             let sales = 0;
-            let cogs = currentCase.cogsQ2.ans;
+            let cogs = currentCase.cogsValue;
             let otherRev = 0;
             let expenses = 0;
 
             currentCase.items.forEach(item => {
-                if (item.name.includes("銷貨收益") || item.name.includes("Sales")) {
+                if (item.name.includes("銷貨") && !item.name.includes("銷貨運費") && !item.name.includes("銷貨退回") && !item.name.includes("銷貨折讓")) {
                     sales += item.amount;
-                } else if (item.name.includes("銷貨退回") || item.name.includes("Returns Inwards") || item.name.includes("銷貨折讓")) {
-                    sales -= item.amount; // 淨銷貨
+                } else if (item.name.includes("銷貨退回") || item.name.includes("銷貨折讓")) {
+                    sales -= item.amount;
                 }
 
                 if (item.category === "below") {
@@ -451,7 +461,6 @@
             document.getElementById("input-gp").value = "";
             document.getElementById("input-np").value = "";
 
-            // 儲存解答於 Dataset
             const expectedGP = sales - cogs;
             const expectedNP = expectedGP + otherRev - expenses;
             
@@ -469,11 +478,11 @@
             const feedback = document.getElementById("stage3-feedback");
 
             if (userGP === expectedGP && userNP === expectedNP) {
-                feedback.className = "mt-2 font-bold text-base text-green-600";
-                feedback.innerText = "🎉 恭喜！你已成功正確編制完整損益表！";
+                feedback.className = "mt-3 font-bold text-base text-green-600";
+                feedback.innerText = "🎉 勁呀！你已經成功精確計算出毛利同純利，完整編制好損益表啦！";
             } else {
-                feedback.className = "mt-2 font-bold text-base text-red-600";
-                feedback.innerText = `答案未正確。提示：正確毛利應為 $${expectedGP.toLocaleString()}，淨利潤應為 $${expectedNP.toLocaleString()}`;
+                feedback.className = "mt-3 font-bold text-base text-amber-700";
+                feedback.innerText = `差一點點！你可以再計算一次。提示：正確毛利應為 $${expectedGP.toLocaleString()}，純利應為 $${expectedNP.toLocaleString()}。繼續努力！💪`;
             }
         }
     </script>
